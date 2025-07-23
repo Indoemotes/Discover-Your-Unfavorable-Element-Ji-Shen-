@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unfavorable Element (Ji Shen) Check-Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .quiz-container {
+            transition: opacity 0.5s ease-in-out;
+        }
+        .hidden {
+            display: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s forwards;
+        }
+        .fade-out {
+            animation: fadeOut 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        <!-- Start Screen -->
+        <div id="start-screen" class="quiz-container bg-gray-800 p-8 rounded-xl shadow-2xl text-center fade-in">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-4">Discover Your Unfavorable Element</h1>
+            <p class="text-teal-300 text-lg mb-6">Ji Shen (忌神) Check-Up</p>
+            <div class="text-left text-gray-300 space-y-4 mb-8">
+                <p>Welcome! This interactive check-up is designed to offer insight into your "Unfavorable Element" or <span class="font-semibold text-teal-400">Ji Shen</span>. In Chinese Metaphysics, this is the element that can represent challenges, imbalances, and obstacles in your life.</p>
+                <p>By understanding it, you can learn to navigate these challenges more effectively and cultivate greater balance.</p>
+                <p class="font-semibold text-white">How to proceed:</p>
+                <ul class="list-disc list-inside space-y-2 pl-4">
+                    <li>You will be presented with a series of questions about your tendencies and reactions.</li>
+                    <li>Choose the answer that resonates most strongly with you. There are no right or wrong answers.</li>
+                    <li>Based on your responses, we will identify your potential Unfavorable Element and provide a detailed explanation.</li>
+                </ul>
+                 <p class="pt-4 text-center text-sm text-gray-400">Please note: This is a simplified, introspective tool and not a substitute for a professional Bazi consultation.</p>
+            </div>
+            <button id="start-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                Start the Check-Up
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="quiz-container bg-gray-800 p-8 rounded-xl shadow-2xl hidden">
+            <div id="progress-bar-container" class="w-full bg-gray-700 rounded-full h-2.5 mb-6">
+                <div id="progress-bar" class="bg-teal-500 h-2.5 rounded-full" style="width: 0%"></div>
+            </div>
+            <h2 id="question-text" class="text-2xl md:text-3xl font-semibold text-white mb-8 text-center"></h2>
+            <div id="answer-buttons" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Answer buttons will be generated here -->
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="quiz-container bg-gray-800 p-8 rounded-xl shadow-2xl hidden">
+            <h2 class="text-2xl font-bold text-center text-white mb-2">Your Potential Unfavorable Element is:</h2>
+            <h1 id="result-element" class="text-4xl md:text-5xl font-bold text-center text-teal-400 mb-6"></h1>
+            <div id="result-description" class="text-gray-300 space-y-4 mb-8">
+                <!-- Detailed result description will be injected here -->
+            </div>
+            <button id="restart-btn" class="w-full mt-8 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 hidden">
+                Try Again
+            </button>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-8">
+            <p class="text-gray-500 text-sm">Powered by <span class="font-semibold">Indoemotes</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        const questionText = document.getElementById('question-text');
+        const answerButtonsContainer = document.getElementById('answer-buttons');
+        const progressBar = document.getElementById('progress-bar');
+
+        const resultElement = document.getElementById('result-element');
+        const resultDescription = document.getElementById('result-description');
+
+        // --- Quiz Data ---
+        const questions = [
+            {
+                question: "When under pressure, what is your most common negative reaction?",
+                answers: [
+                    { text: "I become impulsive and burn out quickly.", element: "Fire" },
+                    { text: "I get stuck in worry and resist moving forward.", element: "Earth" },
+                    { text: "I become overly critical and rigid in my thinking.", element: "Metal" },
+                    { text: "I feel paralyzed by fear and uncertainty.", element: "Water" },
+                    { text: "I feel overwhelmed by too many tasks and become inflexible.", element: "Wood" }
+                ]
+            },
+            {
+                question: "What kind of environment makes you feel most drained or uncomfortable?",
+                answers: [
+                    { text: "One that is chaotic, overly stimulating, and loud.", element: "Fire" },
+                    { text: "A stagnant, unchanging, and overly predictable environment.", element: "Earth" },
+                    { text: "A place with strict, unforgiving rules and harsh judgments.", element: "Metal" },
+                    { text: "An environment that feels isolating, directionless, and cold.", element: "Water" },
+                    { text: "A place with too much growth and competition, making me feel constrained.", element: "Wood" }
+                ]
+            },
+            {
+                question: "In relationships, what is your biggest challenge?",
+                answers: [
+                    { text: "My intensity or dramatic emotional swings can push people away.", element: "Fire" },
+                    { text: "I can be smothering or overly resistant to change in the dynamic.", element: "Earth" },
+                    { text: "My sharp words or emotional distance create barriers.", element: "Metal" },
+                    { text: "My indecisiveness and emotional volatility create instability.", element: "Water" },
+                    { text: "My stubbornness and refusal to bend cause conflicts.", element: "Wood" }
+                ]
+            },
+            {
+                question: "Which negative emotion do you struggle with the most?",
+                answers: [
+                    { text: "Anxiety and a frantic need for excitement.", element: "Fire" },
+                    { text: "Constant worry and overthinking.", element: "Earth" },
+                    { text: "Grief, sadness, and difficulty letting go.", element: "Metal" },
+                    { text: "Fear and a sense of being lost.", element: "Water" },
+                    { text: "Anger and frustration when feeling restricted.", element: "Wood" }
+                ]
+            },
+            {
+                question: "When a project fails, what is your typical thought process?",
+                answers: [
+                    { text: "'I lost my passion for it anyway, on to the next thing!'", element: "Fire" },
+                    { text: "'I'm stuck and I don't know how to recover from this.'", element: "Earth" },
+                    { text: "'I should have been more perfect. I'll analyze every mistake.'", element: "Metal" },
+                    { text: "'I feel completely adrift and have lost all confidence.'", element: "Water" },
+                    { text: "'The initial plan was flawed and I couldn't adapt.'", element: "Wood" }
+                ]
+            },
+            {
+                question: "How do you handle your personal finances when you're not at your best?",
+                answers: [
+                    { text: "Impulse spending on things that give me a temporary thrill.", element: "Fire" },
+                    { text: "Hoarding money out of anxiety, but not investing or using it.", element: "Earth" },
+                    { text: "Being extremely strict with budgets, causing self-deprivation.", element: "Metal" },
+                    { text: "Avoiding looking at my bank account due to fear.", element: "Water" },
+                    { text: "Sticking to a rigid financial plan, even if it's no longer working.", element: "Wood" }
+                ]
+            },
+            {
+                question: "When you feel physically unwell under stress, where does it tend to manifest?",
+                answers: [
+                    { text: "Heart palpitations, skin inflammation, or feeling 'feverish'.", element: "Fire" },
+                    { text: "Digestive issues like bloating, stomach pain, or weight changes.", element: "Earth" },
+                    { text: "Respiratory issues like coughing, shortness of breath, or skin dryness.", element: "Metal" },
+                    { text: "Low energy, feeling cold, or issues related to the urinary system.", element: "Water" },
+                    { text: "Headaches, muscle tension in the neck/shoulders, or eye strain.", element: "Wood" }
+                ]
+            },
+            {
+                question: "When faced with a major life decision, what is your biggest obstacle?",
+                answers: [
+                    { text: "Making a snap decision based on excitement, then regretting it.", element: "Fire" },
+                    { text: "Getting lost in endless pros and cons, unable to commit.", element: "Earth" },
+                    { text: "Needing a 'perfect' plan with zero risk, which is impossible.", element: "Metal" },
+                    { text: "Feeling too overwhelmed by possibilities and fearing the wrong choice.", element: "Water" },
+                    { text: "Being too focused on a single path, ignoring better alternatives.", element: "Wood" }
+                ]
+            },
+            {
+                question: "In a group discussion that becomes tense, what is your instinctual role?",
+                answers: [
+                    { text: "Become the center of emotional drama, either escalating or pacifying loudly.", element: "Fire" },
+                    { text: "Try to mediate and make everyone comfortable, even at my own expense.", element: "Earth" },
+                    { text: "Withdraw and silently judge the lack of logic in the arguments.", element: "Metal" },
+                    { text: "Go with the flow or agree with the dominant opinion to avoid conflict.", element: "Water" },
+                    { text: "Push my point of view forward assertively to 'win' the argument.", element: "Wood" }
+                ]
+            },
+            {
+                question: "How do you typically react to direct, even harsh, criticism?",
+                answers: [
+                    { text: "I have a big emotional reaction, taking it very personally.", element: "Fire" },
+                    { text: "I ruminate on it for days, feeling personally attacked and insecure.", element: "Earth" },
+                    { text: "I feel deep disappointment in myself, focusing on the imperfection.", element: "Metal" },
+                    { text: "My confidence shatters and I feel a deep sense of hurt or fear.", element: "Water" },
+                    { text: "I become defensive and angry, feeling my authority is challenged.", element: "Wood" }
+                ]
+            },
+            {
+                question: "What area of self-improvement feels the most difficult for you?",
+                answers: [
+                    { text: "Developing patience and sticking with one thing long-term.", element: "Fire" },
+                    { text: "Stepping out of my comfort zone and embracing change.", element: "Earth" },
+                    { text: "Learning to forgive myself and others for imperfections.", element: "Metal" },
+                    { text: "Building self-confidence and taking decisive action.", element: "Water" },
+                    { text: "Learning to be flexible and letting others take the lead.", element: "Wood" }
+                ]
+            }
+        ];
+
+        const resultsData = {
+            Wood: {
+                title: "🌳 Wood",
+                description: `
+                    <p class="mb-4">When <strong>Wood</strong> is your unfavorable element, it can manifest as stubbornness, inflexibility, and anger. You might feel constrained or frustrated when your plans are challenged. There can be a tendency to be overly competitive or to take on too much, leading to feeling overwhelmed by your own growth.</p>
+                    <p class="font-semibold text-white">Challenges Include:</p>
+                    <ul class="list-disc list-inside mb-4 pl-4">
+                        <li>Difficulty adapting to unexpected changes.</li>
+                        <li>A tendency towards frustration and anger.</li>
+                        <li>Being overly rigid in your opinions.</li>
+                        <li>Feeling stuck or boxed-in by responsibilities.</li>
+                    </ul>
+                    <p class="font-semibold text-white">Path to Balance:</p>
+                    <p>Cultivate flexibility. Practice activities like yoga or tai chi that promote flow. Learn to delegate and understand that it's okay to bend. The balancing element is often Metal, which brings discipline and the ability to 'prune' away excess, allowing for healthier growth.</p>
+                `
+            },
+            Fire: {
+                title: "🔥 Fire",
+                description: `
+                    <p class="mb-4">When <strong>Fire</strong> is your unfavorable element, it can lead to issues of burnout, anxiety, and impulsiveness. You might experience intense but short-lived bursts of passion, followed by crashes. There can be a tendency towards drama, a lack of focus, and a constant need for external stimulation.</p>
+                    <p class="font-semibold text-white">Challenges Include:</p>
+                    <ul class="list-disc list-inside mb-4 pl-4">
+                        <li>Impulsive decision-making.</li>
+                        <li>Experiencing extreme emotional highs and lows.</li>
+                        <li>Difficulty with focus and long-term commitment.</li>
+                        <li>A tendency to burn out from over-exertion.</li>
+                    </ul>
+                    <p class="font-semibold text-white">Path to Balance:</p>
+                    <p>Embrace calmness and mindfulness. Meditation and spending time in quiet places can be very grounding. The balancing element is Water, which introduces calmness, introspection, and helps to cool the excessive Fire, preventing you from burning out.</p>
+                `
+            },
+            Earth: {
+                title: "⛰️ Earth",
+                description: `
+                    <p class="mb-4">When <strong>Earth</strong> is your unfavorable element, it often manifests as stagnation, worry, and resistance to change. You might find yourself overthinking situations, getting stuck in a rut, or feeling bogged down by your own thoughts. There can be a tendency to be overly nurturing to the point of smothering others, or to hoard possessions and emotions.</p>
+                    <p class="font-semibold text-white">Challenges Include:</p>
+                    <ul class="list-disc list-inside mb-4 pl-4">
+                        <li>Resistance to new ideas and experiences.</li>
+                        <li>A tendency towards worry and anxiety.</li>
+                        <li>Feeling stuck, heavy, or lethargic.</li>
+                        <li>Difficulty letting go of people or situations.</li>
+                    </ul>
+                    <p class="font-semibold text-white">Path to Balance:</p>
+                    <p>Introduce movement and stimulation into your life. The balancing element is Wood, which helps to break up the dense Earth. Try new things, declutter your physical and mental space, and engage in activities that encourage growth and forward momentum.</p>
+                `
+            },
+            Metal: {
+                title: "⚔️ Metal",
+                description: `
+                    <p class="mb-4">When <strong>Metal</strong> is your unfavorable element, it can manifest as rigidity, excessive criticism, and difficulty processing grief. You may hold yourself and others to impossibly high standards. There can be a tendency towards social isolation, sharp or cutting words, and a struggle to be flexible or show vulnerability.</p>
+                    <p class="font-semibold text-white">Challenges Include:</p>
+                    <ul class="list-disc list-inside mb-4 pl-4">
+                        <li>Being overly critical of yourself and others.</li>
+                        <li>Difficulty letting go of past hurts or sadness.</li>
+                        <li>A tendency to be dogmatic and inflexible.</li>
+                        <li>Feeling isolated or emotionally detached.</li>
+                    </ul>
+                    <p class="font-semibold text-white">Path to Balance:</p>
+                    <p>Cultivate warmth and connection. The balancing element is Fire, which can melt the rigid Metal. Practice compassion, engage in joyful social activities, and allow for spontaneity. Expressing your emotions through creative outlets can also be very beneficial.</p>
+                `
+            },
+            Water: {
+                title: "💧 Water",
+                description: `
+                    <p class="mb-4">When <strong>Water</strong> is your unfavorable element, it often leads to fear, lack of direction, and emotional overwhelm. You might feel adrift, indecisive, and easily influenced by your surroundings. There can be a tendency to withdraw from the world, to be overly secretive, and to feel paralyzed by anxiety about the future.</p>
+                    <p class="font-semibold text-white">Challenges Include:</p>
+                    <ul class="list-disc list-inside mb-4 pl-4">
+                        <li>Pervasive feelings of fear and anxiety.</li>
+                        <li>Indecisiveness and lack of clear direction.</li>
+                        <li>A tendency to become emotionally overwhelmed.</li>
+                        <li>Withdrawing and isolating yourself from others.</li>
+                    </ul>
+                    <p class="font-semibold text-white">Path to Balance:</p>
+                    <p>Seek stability and structure. The balancing element is Earth, which provides boundaries and containment for the formless Water. Create routines, set clear and achievable goals, and engage in grounding activities like gardening or working with clay. Building a stable foundation will help you navigate your emotions without being swept away.</p>
+                `
+            }
+        };
+
+        // --- State ---
+        let currentQuestionIndex;
+        let elementScores;
+
+        // --- Functions ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            elementScores = { Wood: 0, Fire: 0, Earth: 0, Metal: 0, Water: 0 };
+            
+            startScreen.classList.add('fade-out');
+            setTimeout(() => {
+                startScreen.classList.add('hidden');
+                startScreen.classList.remove('fade-out');
+                
+                quizScreen.classList.remove('hidden');
+                quizScreen.classList.add('fade-in');
+                showQuestion();
+            }, 500);
+        }
+
+        function showQuestion() {
+            resetState();
+            const question = questions[currentQuestionIndex];
+            questionText.innerText = question.question;
+
+            // Update progress bar
+            const progressPercentage = ((currentQuestionIndex) / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('bg-gray-700', 'hover:bg-teal-700', 'text-white', 'font-medium', 'py-4', 'px-4', 'rounded-lg', 'transition-all', 'duration-200', 'text-left');
+                button.addEventListener('click', () => selectAnswer(answer.element));
+                answerButtonsContainer.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (answerButtonsContainer.firstChild) {
+                answerButtonsContainer.removeChild(answerButtonsContainer.firstChild);
+            }
+        }
+
+        function selectAnswer(element) {
+            elementScores[element]++;
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                // Final progress bar update
+                progressBar.style.width = '100%';
+                setTimeout(showResults, 300); // Small delay before showing results
+            }
+        }
+        
+        function findUnfavorableElement() {
+            // Handle ties by returning the first one found, or implement more complex logic if needed
+            return Object.keys(elementScores).reduce((a, b) => elementScores[a] > elementScores[b] ? a : b);
+        }
+
+        function showResults() {
+            const finalElement = findUnfavorableElement();
+            const resultData = resultsData[finalElement];
+
+            quizScreen.classList.add('fade-out');
+            setTimeout(() => {
+                quizScreen.classList.add('hidden');
+                quizScreen.classList.remove('fade-out');
+
+                resultElement.innerHTML = resultData.title;
+                resultDescription.innerHTML = resultData.description;
+                
+                resultScreen.classList.remove('hidden');
+                resultScreen.classList.add('fade-in');
+            }, 500);
+        }
+        
+        function restartQuiz() {
+             resultScreen.classList.add('fade-out');
+             setTimeout(() => {
+                resultScreen.classList.add('hidden');
+                resultScreen.classList.remove('fade-out');
+                
+                startScreen.classList.remove('hidden');
+                startScreen.classList.add('fade-in');
+             }, 500);
+        }
+
+        // --- Event Listeners ---
+        startBtn.addEventListener('click', startQuiz);
+        // The restart button is now hidden, but the event listener remains in case it's re-enabled.
+        restartBtn.addEventListener('click', restartQuiz);
+
+    </script>
+</body>
+</html>
