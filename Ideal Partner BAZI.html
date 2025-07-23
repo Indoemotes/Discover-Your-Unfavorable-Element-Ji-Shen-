@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazi - Your Ideal Partner's Character Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #121212;
+            background-image:
+                radial-gradient(at 20% 20%, hsla(28,100%,74%,0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 80%, hsla(190,100%,50%,0.1) 0px, transparent 50%);
+        }
+        .font-chinese {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .quiz-container {
+            background: rgba(30, 30, 30, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(209, 173, 94, 0.3);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .btn-primary {
+            background-color: #D1AD5E;
+            color: #1E1E1E;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #E0C48F;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(209, 173, 94, 0.2);
+        }
+        .btn-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(209, 173, 94, 0.2);
+            color: #EAEAEA;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .btn-option:hover, .btn-option.selected {
+            background: rgba(209, 173, 94, 0.2);
+            border-color: #D1AD5E;
+            transform: scale(1.03);
+        }
+        .progress-bar-outer {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .progress-bar-inner {
+            background: linear-gradient(90deg, #b38728, #fcf6ba, #bf953f, #fbf5b7, #aa771c);
+            transition: width 0.5s ease-in-out;
+        }
+        .result-icon {
+            font-size: 4rem;
+            line-height: 1;
+            text-shadow: 0 0 15px rgba(209, 173, 94, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-white">
+
+    <div id="quiz-container" class="quiz-container w-full max-w-xl p-6 md:p-10">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="text-center">
+            <h1 class="font-chinese text-4xl md:text-5xl font-bold text-amber-300">探索缘分</h1>
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-200 mt-3">Your Ideal Partner's Character Map</h2>
+            <p class="text-gray-400 mt-5 leading-relaxed">Every individual possesses a unique energy. This test helps map your preferences and character to find harmony in a relationship. Answer each question intuitively.</p>
+            <button id="start-btn" class="btn-primary w-full mt-8 py-3 rounded-lg text-lg">Start Test</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="mb-6">
+                <p class="text-center text-sm text-amber-200 mb-2">Question <span id="question-number"></span> of <span id="total-questions"></span></p>
+                <div class="w-full progress-bar-outer rounded-full h-2">
+                    <div id="progress-bar" class="progress-bar-inner h-2 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <h2 id="question-text" class="text-lg md:text-xl font-semibold text-gray-100 mb-6 text-center" style="min-height: 60px;"></h2>
+            <div id="answer-buttons" class="grid grid-cols-1 gap-4">
+                <!-- Dynamic answer choices -->
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center">
+            <h1 class="font-chinese text-4xl font-bold text-amber-300">分析结果</h1>
+            <h2 class="text-2xl font-semibold text-gray-200 mt-2">Your Ideal Partner Profile</h2>
+            <div id="result-icon" class="result-icon my-6"></div>
+            <h3 id="result-title" class="text-2xl font-bold text-amber-400 mb-3"></h3>
+            <p id="result-description" class="text-gray-300 leading-relaxed"></p>
+            <p class="text-xs text-gray-500 mt-10">Powered by Indoemotes</p>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "On a weekend, which activity do you enjoy the most?",
+                answers: [
+                    { text: "Trying new things, like hiking or an art workshop", element: "Wood" },
+                    { text: "Gathering with friends at a cafe or social event", element: "Fire" },
+                    { text: "Relaxing at home, reading a book or watching a movie", element: "Earth" },
+                    { text: "Making plans, tidying my room, or working on a personal project", element: "Metal" },
+                    { text: "Going to a quiet place like a beach or a lake", element: "Water" }
+                ]
+            },
+            {
+                question: "In a discussion, what role do you often take?",
+                answers: [
+                    { text: "Leading and directing the conversation towards a clear goal", element: "Wood" },
+                    { text: "Being the center of attention with enthusiastic ideas", element: "Fire" },
+                    { text: "Being a good listener and a neutral mediator", element: "Earth" },
+                    { text: "Analyzing arguments with logic and data", element: "Metal" },
+                    { text: "Being flexible, understanding various points of view", element: "Water" }
+                ]
+            },
+            {
+                question: "How do you usually make important decisions?",
+                answers: [
+                    { text: "Quickly and decisively, based on long-term goals", element: "Wood" },
+                    { text: "Based on intuition and the excitement I feel at the moment", element: "Fire" },
+                    { text: "Considering the impact on others and seeking stability", element: "Earth" },
+                    { text: "With in-depth research and a structured pro-con analysis", element: "Metal" },
+                    { text: "Going with the flow and adapting as time goes on", element: "Water" }
+                ]
+            },
+            {
+                question: "What kind of work environment makes you most productive?",
+                answers: [
+                    { text: "Competitive, dynamic, and full of opportunities to grow", element: "Wood" },
+                    { text: "Collaborative, expressive, and full of social interaction", element: "Fire" },
+                    { text: "Supportive, stable, and feels like a family", element: "Earth" },
+                    { text: "Orderly, efficient, with clear rules and expectations", element: "Metal" },
+                    { text: "Flexible, independent, and allows me to think deeply", element: "Water" }
+                ]
+            },
+            {
+                question: "What do you value most in a relationship?",
+                answers: [
+                    { text: "Growing together and pushing each other forward", element: "Wood" },
+                    { text: "Passion, joy, and open expressions of love", element: "Fire" },
+                    { text: "Trust, comfort, and a sense of security", element: "Earth" },
+                    { text: "Honesty, commitment, and mutual respect", element: "Metal" },
+                    { text: "A deep emotional connection and understanding without words", element: "Water" }
+                ]
+            },
+            {
+                question: "When facing stress, what do you do to calm down?",
+                answers: [
+                    { text: "Exercising or doing physical activity to release energy", element: "Wood" },
+                    { text: "Pouring my heart out to a friend or loved one", element: "Fire" },
+                    { text: "Enjoying good food or a relaxing hobby", element: "Earth" },
+                    { text: "Making a list of problems and finding step-by-step solutions", element: "Metal" },
+                    { text: "Being alone, meditating, or listening to flowing music", element: "Water" }
+                ]
+            },
+            {
+                question: "How do you prefer to show affection?",
+                answers: [
+                    { text: "Through consistent actions and practical support", element: "Wood" },
+                    { text: "With grand gestures, compliments, and public displays", element: "Fire" },
+                    { text: "By creating a comfortable and nurturing home environment", element: "Earth" },
+                    { text: "Through loyalty, keeping promises, and being dependable", element: "Metal" },
+                    { text: "Via deep conversations and sharing vulnerable feelings", element: "Water" }
+                ]
+            },
+            {
+                question: "What type of vacation appeals to you the most?",
+                answers: [
+                    { text: "An adventure trip with a challenging itinerary", element: "Wood" },
+                    { text: "A trip to a vibrant city with parties and social events", element: "Fire" },
+                    { text: "A relaxing getaway at a cozy resort with family or close friends", element: "Earth" },
+                    { text: "A well-planned cultural tour visiting historical sites", element: "Metal" },
+                    { text: "A solo retreat to a secluded, peaceful natural location", element: "Water" }
+                ]
+            },
+            {
+                question: "When a friend has a problem, how do you typically help?",
+                answers: [
+                    { text: "Offer direct advice and a clear action plan", element: "Wood" },
+                    { text: "Cheer them up and distract them with fun activities", element: "Fire" },
+                    { text: "Listen patiently and offer a shoulder to cry on", element: "Earth" },
+                    { text: "Analyze their situation and point out the logical next steps", element: "Metal" },
+                    { text: "Empathize deeply and share my own similar experiences", element: "Water" }
+                ]
+            },
+            {
+                question: "What is your general approach to money?",
+                answers: [
+                    { text: "I see it as a tool for growth, investment, and achieving goals", element: "Wood" },
+                    { text: "I enjoy spending it on experiences and sharing with others", element: "Fire" },
+                    { text: "I am a careful saver and prioritize long-term financial security", element: "Earth" },
+                    { text: "I manage it with detailed budgets and financial plans", element: "Metal" },
+                    { text: "My financial situation can fluctuate; I am adaptable with it", element: "Water" }
+                ]
+            }
+        ];
+
+        const resultData = {
+            Wood: {
+                icon: "🌳",
+                title: "The Stable Supporter (Earth Element)",
+                description: "You are an individual oriented towards growth and goals. Your ideal partner is someone who provides a strong foundation and a sense of security. They are patient, reliable, and supportive. Like fertile soil nurtures a sturdy tree, they will be a faithful supporter in all your ambitions, providing stability as you reach for the stars."
+            },
+            Fire: {
+                icon: "🔥",
+                title: "The Decisive Visionary (Wood Element)",
+                description: "You are a passionate and expressive soul. Your ideal partner is someone who can give direction and purpose to your enthusiasm. They are a visionary, decisive, and inspiring figure. Like wood fueling a fire, they will help you channel your great energy into tangible and sustainable achievements, and inspire you to keep shining."
+            },
+            Earth: {
+                icon: "⛰️",
+                title: "The Charismatic Leader (Fire Element)",
+                description: "You are a pillar of stability and care. Your ideal partner is someone who brings warmth, joy, and spirit into your life. They are charismatic, optimistic, and able to see the best in you. Like the sun warming the earth, they will brighten your days, encourage you to step out of your comfort zone, and fill your life with laughter."
+            },
+            Metal: {
+                icon: "💎",
+                title: "The Adaptive Intellectual (Water Element)",
+                description: "You value structure, logic, and commitment. Your ideal partner is someone who possesses deep emotional intelligence and flexibility. They are communicative, wise, and able to understand the nuances of your feelings. Like water polishing metal until it shines, they will soften your firmness, open deeper communication channels, and help you express yourself."
+            },
+            Water: {
+                icon: "💧",
+                title: "The Reliable Organizer (Metal Element)",
+                description: "You are an adaptive, intuitive, and deep person. Your ideal partner is someone who provides clear structure, certainty, and support. They are organized, loyal, and reliable. Like a metal container holding water, they will give you a sense of security and healthy boundaries, helping you turn your brilliant ideas into structured reality."
+            }
+        };
+
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const startBtn = document.getElementById('start-btn');
+        const questionText = document.getElementById('question-text');
+        const answerButtons = document.getElementById('answer-buttons');
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const progressBar = document.getElementById('progress-bar');
+        
+        let scores;
+        let currentQuestionIndex;
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            
+            scores = { Wood: 0, Fire: 0, Earth: 0, Metal: 0, Water: 0 };
+            currentQuestionIndex = 0;
+            totalQuestionsEl.innerText = quizData.length;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            resetState();
+            const currentQuestion = quizData[currentQuestionIndex];
+            const questionNo = currentQuestionIndex + 1;
+            
+            questionNumberEl.innerText = questionNo;
+            questionText.innerText = currentQuestion.question;
+            progressBar.style.width = `${(questionNo / quizData.length) * 100}%`;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('btn-option', 'w-full', 'p-4', 'rounded-lg');
+                button.dataset.element = answer.element;
+                button.addEventListener('click', selectAnswer);
+                answerButtons.appendChild(button);
+            });
+        }
+
+        function resetState() {
+            while (answerButtons.firstChild) {
+                answerButtons.removeChild(answerButtons.firstChild);
+            }
+        }
+
+        function selectAnswer(e) {
+            const selectedBtn = e.target;
+            const element = selectedBtn.dataset.element;
+            scores[element]++;
+
+            Array.from(answerButtons.children).forEach(button => button.classList.remove('selected'));
+            selectedBtn.classList.add('selected');
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 400);
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const dominantElement = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            
+            const result = resultData[dominantElement];
+            document.getElementById('result-icon').innerText = result.icon;
+            document.getElementById('result-title').innerText = result.title;
+            document.getElementById('result-description').innerText = result.description;
+        }
+
+        startBtn.addEventListener('click', startQuiz);
+    </script>
+</body>
+</html>
